@@ -53,3 +53,8 @@ gitm-node-health summarize --job "$SLURM_JOB_ID" --out "$OUT_HOST/node_health.js
 (`node_health_window.json`). `healthy: false` → check fail → verdict
 `invalid_run`. Unhealthy attempts move `$OUT_HOST` to
 `$RESULTS/discarded/<jobid>/` and `scontrol requeue` (max 2 requeues).
+
+Contract timing fields in [`deploy/h200/signal_contract.json`](../deploy/h200/signal_contract.json)
+are in nanoseconds (same unit as capture timestamps):
+`expected_sample_period_ns` = 1000000000 (**1 s**),
+`max_clock_skew_ns` = 5000000000 (**5 s**).

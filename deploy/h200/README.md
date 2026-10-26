@@ -20,7 +20,7 @@ one queue. Live status: <https://gitm-labs.github.io/gpu-status/>.
 | `gitm-job` | everywhere | Team CLI; also the status pusher |
 | `gitm-node-report` | every node | GPU readings + job log tails for the page |
 | `gitm-node-health` | every node (job prolog/epilog) | Pre/post thermal, clocks, power cap, XID, vLLM, `/dev/shm`, NVLink; one window row per job; discard + requeue on fail |
-| `signal_contract.json` | laptop / qualify_run | H200 contract requiring `node_health` + `merged_trace` |
+| `signal_contract.json` | laptop / qualify_run | H200 contract requiring `node_health` + `merged_trace` (`expected_sample_period_ns` = 1 s, `max_clock_skew_ns` = 5 s) |
 
 Node-health signals and thresholds: [`docs/h200_node_health.md`](../../docs/h200_node_health.md).
 
