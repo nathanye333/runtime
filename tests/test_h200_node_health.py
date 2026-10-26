@@ -117,6 +117,8 @@ def test_dmesg_helper_filters_before_returning_and_is_explicitly_scoped():
     assert "grep -i 'NVRM:[[:space:]]*Xid'" in helper
     assert '"$user ALL=(root) NOPASSWD:' in setup
     assert 'HEALTH_USERS+=("$2")' in setup
+    assert '"$RESULTS_DIR/discarded"' in setup
+    assert 'chmod 1777 "$RESULTS_DIR" "$RESULTS_DIR/discarded"' in setup
     assert "getent passwd | awk" not in setup
     assert "usermod -a -G gitm-health" not in setup
 
@@ -471,6 +473,7 @@ def test_gate_discards_and_requeues(tmp_path: Path, monkeypatch: pytest.MonkeyPa
     assert rc == 1
     assert not out.exists()
     assert (results / "discarded" / "99").is_dir()
+    assert (results / "discarded").stat().st_mode & 0o7777 == 0o1777
     assert any(c[:2] == ["scontrol", "requeue"] for c in calls)
 
 

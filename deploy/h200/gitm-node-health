@@ -312,6 +312,10 @@ def gate(args: argparse.Namespace) -> int:
     if dest.exists():
         dest = dest.with_name(f"{job}-{int(time.time())}")
     dest.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        dest.parent.chmod(0o1777)
+    except OSError:
+        pass
     if source.exists():
         source.rename(dest)
     rc, out = _command(["scontrol", "show", "job", job, "-o"])

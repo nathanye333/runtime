@@ -163,8 +163,8 @@ srun --help 2>/dev/null | grep -q -- '--container-image' \
 
 # ---------------------------------------------------------------------------
 step "gitm folders, CLI and node reporter"
-mkdir -p "$RESULTS_DIR" "$HF_CACHE" "$IMAGE_DIR" /etc/gitm-gpu
-chmod 1777 "$RESULTS_DIR"          # jobs write here; sticky so runs can't delete each other
+mkdir -p "$RESULTS_DIR" "$RESULTS_DIR/discarded" "$HF_CACHE" "$IMAGE_DIR" /etc/gitm-gpu
+chmod 1777 "$RESULTS_DIR" "$RESULTS_DIR/discarded"  # sticky shared; gate moves unhealthy runs here
 # Shared Hugging Face cache: every user's job reads and adds models here.
 # Default ACLs keep new files writable by all, whatever each job's umask.
 chmod 0777 "$HF_CACHE"
