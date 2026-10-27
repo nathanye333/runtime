@@ -1,0 +1,99 @@
+# Vendor GPU peak catalogue (schema only — not loaded by code yet).
+#
+# Roadmap target for HardwareSpec (see gitm/planner/roofline.py). When wired,
+# rows here replace the handwritten tables in gitm/planner/context.py
+# (_PEAKS, _QUANT_PEAKS, _INTERCONNECT, _ARCH, _MEMORY).
+#
+# Units match the ceiling / roofline layer (do not use nanoseconds here):
+#   peak_flops_*_per_s          FLOP/s
+#   hbm_bw_bytes_per_s          bytes/s
+#   hbm_capacity_bytes          bytes
+#   interconnect_bw_bytes_per_s bytes/s (NVLink or PCIe, bidirectional per GPU)
+#   sm_count                    count (ticket-forward; unused by roofline today)
+#   l2_bytes                    bytes (ticket-forward; unused by roofline today)
+#   arch                        tensor-core generation string (hopper, blackwell, …)
+#   source                      datasheet citation
+#
+# Traces and signal contracts use nanoseconds elsewhere; convert at compare time
+# (ns / 1e9 → s) when calibrating against t_pred_s.
+#
+# Fill numeric fields from datasheets later. Do not invent values in this PR.
+
+skus:
+  - sku: A100
+    peak_flops_fp16_per_s: null
+    peak_flops_fp8_per_s: null
+    peak_flops_fp4_per_s: null
+    peak_flops_fp32_per_s: null
+    hbm_bw_bytes_per_s: null
+    hbm_capacity_bytes: null
+    interconnect_bw_bytes_per_s: null
+    arch: null
+    sm_count: null
+    l2_bytes: null
+    source: ""
+
+  - sku: H100
+    peak_flops_fp16_per_s: null
+    peak_flops_fp8_per_s: null
+    peak_flops_fp4_per_s: null
+    peak_flops_fp32_per_s: null
+    hbm_bw_bytes_per_s: null
+    hbm_capacity_bytes: null
+    interconnect_bw_bytes_per_s: null
+    arch: null
+    sm_count: null
+    l2_bytes: null
+    source: ""
+
+  - sku: H200
+    peak_flops_fp16_per_s: null
+    peak_flops_fp8_per_s: null
+    peak_flops_fp4_per_s: null
+    peak_flops_fp32_per_s: null
+    hbm_bw_bytes_per_s: null
+    hbm_capacity_bytes: null
+    interconnect_bw_bytes_per_s: null
+    arch: null
+    sm_count: null
+    l2_bytes: null
+    source: ""
+
+  - sku: B200
+    peak_flops_fp16_per_s: null
+    peak_flops_fp8_per_s: null
+    peak_flops_fp4_per_s: null
+    peak_flops_fp32_per_s: null
+    hbm_bw_bytes_per_s: null
+    hbm_capacity_bytes: null
+    interconnect_bw_bytes_per_s: null
+    arch: null
+    sm_count: null
+    l2_bytes: null
+    source: ""
+
+  - sku: GB200
+    peak_flops_fp16_per_s: null
+    peak_flops_fp8_per_s: null
+    peak_flops_fp4_per_s: null
+    peak_flops_fp32_per_s: null
+    hbm_bw_bytes_per_s: null
+    hbm_capacity_bytes: null
+    interconnect_bw_bytes_per_s: null
+    arch: null
+    sm_count: null
+    l2_bytes: null
+    source: ""
+
+  - sku: L40S
+    peak_flops_fp16_per_s: null
+    peak_flops_fp8_per_s: null
+    peak_flops_fp4_per_s: null
+    peak_flops_fp32_per_s: null
+    hbm_bw_bytes_per_s: null
+    hbm_capacity_bytes: null
+    interconnect_bw_bytes_per_s: null
+    arch: null
+    sm_count: null
+    l2_bytes: null
+    source: ""
