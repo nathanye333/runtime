@@ -1,7 +1,11 @@
-"""Driver / CUDA / NCCL versions for the run record (re-baseline visibility).
+"""Host driver / CUDA versions for the run record (re-baseline visibility).
 
 Written next to ``preflight.json`` as ``stack_versions.json`` and copied into
 ``run_manifest.json``. Best-effort: missing tools become null, never raise.
+
+Only ``nvidia-smi`` fields are filled here. ``torch_cuda_version`` / ``nccl_version``
+stay null: reading ``import torch`` would sample the capture process, not the
+server, and mis-label observer versions as the run's stack.
 """
 
 from __future__ import annotations
@@ -21,12 +25,13 @@ def _run(cmd: list[str], timeout: float = 15) -> str:
 
 
 def collect_stack_versions() -> dict[str, Any]:
-    """Snapshot host/container stack versions (vLLM collect-env equivalent subset)."""
+    """Snapshot host driver/CUDA from nvidia-smi (torch/NCCL left unknown)."""
     versions: dict[str, Any] = {
         "driver_version": None,
         "cuda_version": None,  # driver-reported CUDA (nvidia-smi banner)
         "torch_cuda_version": None,
         "nccl_version": None,
+        "source": "host_nvidia_smi",
     }
 
     driver = _run(
@@ -39,19 +44,5 @@ def collect_stack_versions() -> dict[str, Any]:
     m = re.search(r"CUDA Version:\s*([\d.]+)", smi)
     if m:
         versions["cuda_version"] = m.group(1)
-
-    try:
-        import torch
-
-        raw = getattr(torch.version, "cuda", None)
-        if raw:
-            versions["torch_cuda_version"] = str(raw)
-        nccl = torch.cuda.nccl.version()
-        if isinstance(nccl, tuple):
-            versions["nccl_version"] = ".".join(str(x) for x in nccl)
-        elif nccl is not None:
-            versions["nccl_version"] = str(nccl)
-    except Exception:
-        pass
 
     return versions

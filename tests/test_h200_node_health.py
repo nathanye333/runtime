@@ -118,7 +118,9 @@ def test_pre_writes_stack_versions(tmp_path: Path, monkeypatch: pytest.MonkeyPat
             "cuda_version": "12.8",
             "torch_cuda_version": None,
             "nccl_version": None,
+            "source": "host_nvidia_smi",
         },
+
     )
     monkeypatch.setattr(
         health,

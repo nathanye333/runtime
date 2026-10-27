@@ -109,12 +109,13 @@ def _nvlink_ok(status: dict[str, Any]) -> bool:
 
 
 def _stack_versions() -> dict[str, Any]:
-    """Host driver/CUDA banner for the run record (NCCL lives in the container)."""
+    """Host driver/CUDA banner for the run record (torch/NCCL left unknown)."""
     versions: dict[str, Any] = {
         "driver_version": None,
         "cuda_version": None,
         "torch_cuda_version": None,
         "nccl_version": None,
+        "source": "host_nvidia_smi",
     }
     rows = _csv("driver_version")
     if rows and rows[0]:
@@ -125,6 +126,7 @@ def _stack_versions() -> dict[str, Any]:
         if m:
             versions["cuda_version"] = m.group(1)
     return versions
+
 
 
 def snapshot(phase: str) -> dict[str, Any]:

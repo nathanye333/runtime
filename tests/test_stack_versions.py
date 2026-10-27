@@ -10,9 +10,6 @@ from gitm.serve.stack_versions import collect_stack_versions
 
 
 def test_collect_stack_versions_shape(monkeypatch):
-    import sys
-    import types
-
     monkeypatch.setattr(
         "gitm.serve.stack_versions._run",
         lambda cmd, timeout=15: (
@@ -21,17 +18,12 @@ def test_collect_stack_versions_shape(monkeypatch):
             else "CUDA Version: 12.8\n"
         ),
     )
-    torch = types.ModuleType("torch")
-    torch.version = types.SimpleNamespace(cuda="12.8")
-    torch.cuda = types.SimpleNamespace(
-        nccl=types.SimpleNamespace(version=lambda: (2, 21, 5))
-    )
-    monkeypatch.setitem(sys.modules, "torch", torch)
     versions = collect_stack_versions()
     assert versions["driver_version"] == "570.86.15"
     assert versions["cuda_version"] == "12.8"
-    assert versions["torch_cuda_version"] == "12.8"
-    assert versions["nccl_version"] == "2.21.5"
+    assert versions["torch_cuda_version"] is None
+    assert versions["nccl_version"] is None
+    assert versions["source"] == "host_nvidia_smi"
 
 
 def test_write_preflight_records_stack_versions(tmp_path: Path, monkeypatch):
@@ -40,8 +32,9 @@ def test_write_preflight_records_stack_versions(tmp_path: Path, monkeypatch):
         lambda: {
             "driver_version": "570.86.15",
             "cuda_version": "12.8",
-            "torch_cuda_version": "12.8",
-            "nccl_version": "2.21.5",
+            "torch_cuda_version": None,
+            "nccl_version": None,
+            "source": "host_nvidia_smi",
         },
     )
     from dataclasses import dataclass
@@ -53,7 +46,8 @@ def test_write_preflight_records_stack_versions(tmp_path: Path, monkeypatch):
         detail: str
 
     versions = write_preflight(tmp_path, [Check("gpus", "pass", "ok")])
-    assert versions["nccl_version"] == "2.21.5"
+    assert versions["source"] == "host_nvidia_smi"
+    assert versions["nccl_version"] is None
     written = json.loads((tmp_path / "stack_versions.json").read_text())
     assert written == versions
     assert (tmp_path / "preflight.json").is_file()

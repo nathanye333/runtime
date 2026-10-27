@@ -10,7 +10,7 @@ the whole point of having both paths is lost. So the writing lives here, once:
     run_manifest.json      how the trace was obtained, in enough detail to redo it
     serving_summary.json   what the server was doing during the window
     preflight.json         what was checked before anything was touched
-    stack_versions.json    driver / CUDA / NCCL versions (re-baseline visibility)
+    stack_versions.json    host driver / CUDA versions (re-baseline visibility)
 
 ``kernel_breakdown`` is written on every run, not only on the empty-trace path: a
 trace with plenty of kernels in it can still be unusable — CUDA-graph replay loses
