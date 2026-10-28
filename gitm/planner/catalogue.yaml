@@ -17,7 +17,8 @@
 # Traces and signal contracts use nanoseconds elsewhere; convert at compare time
 # (ns / 1e9 → s) when calibrating against t_pred_s.
 #
-# Fill numeric fields from datasheets later. Do not invent values in this PR.
+# Other SKUs: leave null until datasheet fill. H200 SXM is filled from the same
+# dense figures as gitm/planner/context.py (ceiling source of truth today).
 
 skus:
   - sku: A100
@@ -47,17 +48,18 @@ skus:
     source: ""
 
   - sku: H200
-    peak_flops_fp16_per_s: null
-    peak_flops_fp8_per_s: null
-    peak_flops_fp4_per_s: null
-    peak_flops_fp32_per_s: null
-    hbm_bw_bytes_per_s: null
-    hbm_capacity_bytes: null
-    interconnect_bw_bytes_per_s: null
-    arch: null
-    sm_count: null
-    l2_bytes: null
-    source: ""
+    # SXM variant; dense peaks (no 2:4 sparsity). Matches context.py.
+    peak_flops_fp16_per_s: 989e12
+    peak_flops_fp8_per_s: 1979e12
+    peak_flops_fp4_per_s: null  # Hopper: no FP4 tensor path
+    peak_flops_fp32_per_s: 67e12
+    hbm_bw_bytes_per_s: 4800e9
+    hbm_capacity_bytes: 141e9
+    interconnect_bw_bytes_per_s: 900e9
+    arch: hopper
+    sm_count: 132
+    l2_bytes: 52428800  # 50 MiB (Hopper "50 MB" = binary)
+    source: "NVIDIA H200 SXM; dense figures as in gitm/planner/context.py (_PEAKS/_QUANT_PEAKS/_INTERCONNECT/_MEMORY); https://www.nvidia.com/en-us/data-center/h200/"
 
   - sku: B200
     peak_flops_fp16_per_s: null
