@@ -1,199 +1,99 @@
-# Vendor GPU peak catalogue (schema + datasheet values — not loaded by code yet).
+# Vendor GPU peak catalogue (schema only — not loaded by code yet).
 #
 # Roadmap target for HardwareSpec (see gitm/planner/roofline.py). When wired,
 # rows here replace the handwritten tables in gitm/planner/context.py
-# (_PEAKS, _QUANT_PEAKS, _INTERCONNECT, _ARCH, _MEMORY). Until then, context.py
-# remains the runtime source of truth (note: GB200 dense FP16 there is 2250e12
-# by deliberate conservatism; this catalogue stores the datasheet per-GPU 2500e12).
+# (_PEAKS, _QUANT_PEAKS, _INTERCONNECT, _ARCH, _MEMORY).
 #
-# ---------------------------------------------------------------------------
-# Field semantics (read before wiring into the planner)
-# ---------------------------------------------------------------------------
-# peak_flops_*_per_s
-#   Dense theoretical peak FLOP/s. NO 2:4 structured sparsity.
-#   When a datasheet lists sparse|dense or footnotes "*", catalogue = dense
-#   (= half of the sparse marketing cell).
-#   peak_flops_fp32_per_s = CUDA-core / non-tensor FP32 (e.g. MoE router),
-#   NOT Tensor Core TF32 (TF32 on H100 SXM is ~989 TFLOPS dense — separate path).
-#   FP16 and BF16 Tensor Core rates are identical on these SKUs; only fp16 is
-#   stored (HardwareSpec copies into bf16 today).
+# Units match the ceiling / roofline layer (do not use nanoseconds here):
+#   peak_flops_*_per_s          FLOP/s
+#   hbm_bw_bytes_per_s          bytes/s
+#   hbm_capacity_bytes          bytes
+#   interconnect_bw_bytes_per_s bytes/s (NVLink or PCIe, bidirectional per GPU)
+#   sm_count                    count (ticket-forward; unused by roofline today)
+#   l2_bytes                    bytes (ticket-forward; unused by roofline today)
+#   arch                        tensor-core generation string (hopper, blackwell, …)
+#   source                      datasheet citation
 #
-# hbm_bw_bytes_per_s / hbm_capacity_bytes
-#   Nominal vendor peaks. Capacity uses decimal 1e9 bytes per advertised "GB"
-#   (80e9 for "80 GB"), not GiB. Not guaranteed usable after ECC/BAR/driver.
+# Traces and signal contracts use nanoseconds elsewhere; convert at compare time
+# (ns / 1e9 → s) when calibrating against t_pred_s.
 #
-# interconnect_bw_bytes_per_s
-#   Theoretical aggregate bidirectional bandwidth for ONE GPU's primary
-#   scale-up link (NVLink total or PCIe Gen4 x16). NOT effective collective
-#   bandwidth, NOT per-link unidirectional, and NOT fabric-equivalent across
-#   NVLink vs PCIe — L40S is PCIe-only (no NVLink).
-#
-# l2_bytes
-#   Binary MiB → bytes (40 MiB = 40 * 2^20). Do not mix with decimal "MB".
-#
-# sm_count
-#   NVIDIA Streaming Multiprocessors (vendor-specific name).
-#
-# sku_variant
-#   Form factor the numbers belong to (SXM vs PCIe). Do not apply an SXM row
-#   to a PCIe part (H100 PCIe has lower peaks and different HBM BW).
-#
-# GB200 row
-#   One Blackwell GPU inside a GB200 system (per-GPU peaks / HBM / NVLink),
-#   NOT the Grace–Blackwell Superchip aggregate and NOT NVL72 rack totals.
-#
-# B200 HBM bandwidth
-#   7.7 TB/s from HGX B200 datasheet (NVIDIA doc 3384703). HGX RA text also
-#   says "up to 8 TB/s"; we keep 7.7 to match context.py and the cited sheet.
-#   GB200 GPU uses 8.0 TB/s (doc 4204213).
-#
-# null peak + sources note "n/a" = SKU has no native tensor path at that dtype.
-# Traces use nanoseconds elsewhere; convert at compare time (ns / 1e9 → s).
-#
-# Manual verification links are listed under each row's sources and in the
-# docs/sku_constant_inventory.md companion note.
+# Fill numeric fields from datasheets later. Do not invent values in this PR.
 
 skus:
   - sku: A100
-    sku_variant: SXM4-80GB
-    peak_flops_fp16_per_s: 312e12
+    peak_flops_fp16_per_s: null
     peak_flops_fp8_per_s: null
     peak_flops_fp4_per_s: null
-    peak_flops_fp32_per_s: 19.5e12
-    hbm_bw_bytes_per_s: 2039e9
-    hbm_capacity_bytes: 80e9
-    interconnect_bw_bytes_per_s: 600e9
-    arch: ampere
-    sm_count: 108
-    l2_bytes: 41943040  # 40 MiB
-    sources:
-      peak_flops_fp16_per_s: "https://www.nvidia.com/en-us/data-center/a100/ — A100 80GB SXM dense BF16/FP16 312 TFLOPS (624* with sparsity)"
-      peak_flops_fp8_per_s: "n/a — Ampere has no FP8 tensor path"
-      peak_flops_fp4_per_s: "n/a — Ampere has no FP4 tensor path"
-      peak_flops_fp32_per_s: "https://www.nvidia.com/en-us/data-center/a100/ — FP32 19.5 TFLOPS (SXM)"
-      hbm_bw_bytes_per_s: "https://www.nvidia.com/en-us/data-center/a100/ — HBM2e 2039 GB/s (SXM 80GB); PCIe 80GB is 1935 GB/s"
-      hbm_capacity_bytes: "https://www.nvidia.com/en-us/data-center/a100/ — 80 GB HBM2e (SXM); nominal 80e9 bytes"
-      interconnect_bw_bytes_per_s: "https://www.nvidia.com/en-us/data-center/a100/ — NVLink 600 GB/s bidirectional aggregate per GPU (not collective BW)"
-      arch: "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/nvidia-ampere-architecture-whitepaper.pdf — GA100"
-      sm_count: "Ampere architecture whitepaper — 108 SMs (A100 SXM)"
-      l2_bytes: "Ampere architecture whitepaper — 40 MB L2 → 40 * 2^20 bytes"
+    peak_flops_fp32_per_s: null
+    hbm_bw_bytes_per_s: null
+    hbm_capacity_bytes: null
+    interconnect_bw_bytes_per_s: null
+    arch: null
+    sm_count: null
+    l2_bytes: null
+    source: ""
 
   - sku: H100
-    sku_variant: SXM
-    peak_flops_fp16_per_s: 989e12
-    peak_flops_fp8_per_s: 1979e12
+    peak_flops_fp16_per_s: null
+    peak_flops_fp8_per_s: null
     peak_flops_fp4_per_s: null
-    peak_flops_fp32_per_s: 67e12
-    hbm_bw_bytes_per_s: 3350e9
-    hbm_capacity_bytes: 80e9
-    interconnect_bw_bytes_per_s: 900e9
-    arch: hopper
-    sm_count: 132
-    l2_bytes: 52428800  # 50 MiB
-    sources:
-      peak_flops_fp16_per_s: "https://www.nvidia.com/en-us/data-center/h100/ — H100 SXM BF16/FP16 1979* sparse → dense 989 TFLOPS (* = sparsity)"
-      peak_flops_fp8_per_s: "https://www.nvidia.com/en-us/data-center/h100/ — H100 SXM FP8 3958* sparse → dense 1979 TFLOPS"
-      peak_flops_fp4_per_s: "n/a — Hopper has no FP4 tensor path"
-      peak_flops_fp32_per_s: "https://www.nvidia.com/en-us/data-center/h100/ — FP32 67 TFLOPS (CUDA-core; TF32 Tensor Core is 989* sparse / 494.5 dense — not this field)"
-      hbm_bw_bytes_per_s: "https://www.nvidia.com/en-us/data-center/h100/ — H100 SXM HBM3 3.35 TB/s (not H100 NVL/PCIe)"
-      hbm_capacity_bytes: "https://www.nvidia.com/en-us/data-center/h100/ — 80 GB HBM3 (SXM); nominal 80e9 bytes"
-      interconnect_bw_bytes_per_s: "https://www.nvidia.com/en-us/data-center/h100/ — NVLink 900 GB/s bidirectional aggregate per GPU (not collective BW)"
-      arch: "NVIDIA Hopper GH100 (SXM)"
-      sm_count: "Hopper GH100 SXM — 132 SMs"
-      l2_bytes: "Hopper architecture — 50 MB L2 → 50 * 2^20 bytes"
+    peak_flops_fp32_per_s: null
+    hbm_bw_bytes_per_s: null
+    hbm_capacity_bytes: null
+    interconnect_bw_bytes_per_s: null
+    arch: null
+    sm_count: null
+    l2_bytes: null
+    source: ""
 
   - sku: H200
-    sku_variant: SXM
-    peak_flops_fp16_per_s: 989e12
-    peak_flops_fp8_per_s: 1979e12
+    peak_flops_fp16_per_s: null
+    peak_flops_fp8_per_s: null
     peak_flops_fp4_per_s: null
-    peak_flops_fp32_per_s: 67e12
-    hbm_bw_bytes_per_s: 4800e9
-    hbm_capacity_bytes: 141e9
-    interconnect_bw_bytes_per_s: 900e9
-    arch: hopper
-    sm_count: 132
-    l2_bytes: 52428800  # 50 MiB
-    sources:
-      peak_flops_fp16_per_s: "https://www.nvidia.com/en-us/data-center/h200/ — H200 SXM same Hopper dense compute as H100 SXM (989 TFLOPS BF16/FP16)"
-      peak_flops_fp8_per_s: "https://www.nvidia.com/en-us/data-center/h200/ — H200 SXM dense FP8 1979 TFLOPS (half of 3958*)"
-      peak_flops_fp4_per_s: "n/a — Hopper has no FP4 tensor path"
-      peak_flops_fp32_per_s: "https://www.nvidia.com/en-us/data-center/h200/ — FP32 67 TFLOPS (CUDA-core)"
-      hbm_bw_bytes_per_s: "https://www.nvidia.com/en-us/data-center/h200/ — H200 SXM HBM3e 4.8 TB/s"
-      hbm_capacity_bytes: "https://www.nvidia.com/en-us/data-center/h200/ — 141 GB HBM3e (SXM); nominal 141e9 bytes"
-      interconnect_bw_bytes_per_s: "https://www.nvidia.com/en-us/data-center/h200/ — NVLink 900 GB/s bidirectional aggregate per GPU"
-      arch: "NVIDIA Hopper GH100 (H200 SXM)"
-      sm_count: "Same GH100 SXM as H100 — 132 SMs"
-      l2_bytes: "Hopper architecture — 50 MB L2 → 50 * 2^20 bytes"
+    peak_flops_fp32_per_s: null
+    hbm_bw_bytes_per_s: null
+    hbm_capacity_bytes: null
+    interconnect_bw_bytes_per_s: null
+    arch: null
+    sm_count: null
+    l2_bytes: null
+    source: ""
 
   - sku: B200
-    sku_variant: SXM-HGX
-    peak_flops_fp16_per_s: 2250e12
-    peak_flops_fp8_per_s: 4500e12
-    peak_flops_fp4_per_s: 9000e12
-    peak_flops_fp32_per_s: 75e12
-    hbm_bw_bytes_per_s: 7700e9
-    hbm_capacity_bytes: 180e9
-    interconnect_bw_bytes_per_s: 1800e9
-    arch: blackwell
-    sm_count: 148
-    l2_bytes: 132120576  # 126 MiB
-    sources:
-      peak_flops_fp16_per_s: "https://www.nvidia.com/en-us/data-center/hgx/ + HGX B200 datasheet — sparse 4.5 PFLOPS → dense 2250 TFLOPS FP16/BF16 per GPU"
-      peak_flops_fp8_per_s: "HGX B200 datasheet — sparse 9 PFLOPS → dense 4500 TFLOPS FP8 per GPU"
-      peak_flops_fp4_per_s: "HGX B200 datasheet — sparse 18 PFLOPS → dense 9000 TFLOPS FP4 per GPU"
-      peak_flops_fp32_per_s: "HGX B200 datasheet — FP32 75 TFLOPS per GPU (600 TFLOPS / 8); CUDA-core not TF32"
-      hbm_bw_bytes_per_s: "NVIDIA HGX B200 datasheet doc 3384703 (Dec 2024 p.7) — 7.7 TB/s per GPU. Cross-check: https://docs.nvidia.com/enterprise-reference-architectures/hgx-ai-factory-h100-h200-b200/latest/components.html lists \"up to 8 TB/s\"; catalogue keeps 7.7 to match context.py"
-      hbm_capacity_bytes: "https://docs.nvidia.com/enterprise-reference-architectures/hgx-ai-factory-h100-h200-b200/latest/components.html — 180 GB HBM3e per GPU (1.44 TB / 8)"
-      interconnect_bw_bytes_per_s: "same HGX RA — NVLink 5 GPU-to-GPU 1800 GB/s bidirectional aggregate per GPU (board aggregate 14.4 TB/s / 8); not collective BW"
-      arch: "NVIDIA Blackwell GB100"
-      sm_count: "Blackwell B200 — 148 enabled SMs (74/die); secondary: chipsandcheese.com B200 microarchitecture"
-      l2_bytes: "Blackwell B200 — 126 MB L2 → 126 * 2^20 bytes (secondary microarch measurements)"
+    peak_flops_fp16_per_s: null
+    peak_flops_fp8_per_s: null
+    peak_flops_fp4_per_s: null
+    peak_flops_fp32_per_s: null
+    hbm_bw_bytes_per_s: null
+    hbm_capacity_bytes: null
+    interconnect_bw_bytes_per_s: null
+    arch: null
+    sm_count: null
+    l2_bytes: null
+    source: ""
 
   - sku: GB200
-    sku_variant: per-GPU-in-NVL72
-    peak_flops_fp16_per_s: 2500e12
-    peak_flops_fp8_per_s: 5000e12
-    peak_flops_fp4_per_s: 10000e12
-    peak_flops_fp32_per_s: 80e12
-    hbm_bw_bytes_per_s: 8000e9
-    hbm_capacity_bytes: 186e9
-    interconnect_bw_bytes_per_s: 1800e9
-    arch: blackwell
-    sm_count: 148
-    l2_bytes: 132120576  # 126 MiB
-    sources:
-      peak_flops_fp16_per_s: "https://www.nvidia.com/en-us/data-center/gb200-nvl72/ — per-GPU dense = half sparse 5 PFLOPS → 2500 TFLOPS (NOT Superchip/NVL72 totals; context.py still uses 2250e12 until wire-up)"
-      peak_flops_fp8_per_s: "https://www.nvidia.com/en-us/data-center/gb200-nvl72/ — per-GPU dense FP8 5000 TFLOPS"
-      peak_flops_fp4_per_s: "https://www.nvidia.com/en-us/data-center/gb200-nvl72/ — per-GPU dense FP4 10000 TFLOPS"
-      peak_flops_fp32_per_s: "NVIDIA Blackwell / GB200 GPU column — FP32 80 TFLOPS per GPU (CUDA-core)"
-      hbm_bw_bytes_per_s: "https://www.nvidia.com/en-us/data-center/gb200-nvl72/ + doc 4204213 — 8 TB/s HBM3e per GPU"
-      hbm_capacity_bytes: "https://www.nvidia.com/en-us/data-center/gb200-nvl72/ — 186 GB HBM3e per GPU (13.4 TB / 72)"
-      interconnect_bw_bytes_per_s: "https://www.nvidia.com/en-us/data-center/gb200-nvl72/ — NVLink 5 1.8 TB/s bidirectional aggregate per GPU (not NVL72 130 TB/s domain total)"
-      arch: "NVIDIA Blackwell GPU in GB200 (per-GPU row)"
-      sm_count: "Same Blackwell GPU package class as B200 — 148 enabled SMs"
-      l2_bytes: "Same Blackwell GPU package — 126 MB L2 → 126 * 2^20 bytes"
+    peak_flops_fp16_per_s: null
+    peak_flops_fp8_per_s: null
+    peak_flops_fp4_per_s: null
+    peak_flops_fp32_per_s: null
+    hbm_bw_bytes_per_s: null
+    hbm_capacity_bytes: null
+    interconnect_bw_bytes_per_s: null
+    arch: null
+    sm_count: null
+    l2_bytes: null
+    source: ""
 
   - sku: L40S
-    sku_variant: PCIe
-    peak_flops_fp16_per_s: 362e12
-    peak_flops_fp8_per_s: 733e12
+    peak_flops_fp16_per_s: null
+    peak_flops_fp8_per_s: null
     peak_flops_fp4_per_s: null
-    peak_flops_fp32_per_s: 91.6e12
-    hbm_bw_bytes_per_s: 864e9
-    hbm_capacity_bytes: 48e9
-    interconnect_bw_bytes_per_s: 64e9
-    arch: ada
-    sm_count: 142
-    l2_bytes: 100663296  # 96 MiB
-    sources:
-      peak_flops_fp16_per_s: "https://www.nvidia.com/en-us/data-center/l40s/ — BF16/FP16 Tensor Core 362.05 | 733* (dense|sparse); catalogue stores dense"
-      peak_flops_fp8_per_s: "https://www.nvidia.com/en-us/data-center/l40s/ — FP8 Tensor Core 733 | 1466* (dense|sparse)"
-      peak_flops_fp4_per_s: "n/a — Ada L40S has no FP4 tensor path"
-      peak_flops_fp32_per_s: "https://www.nvidia.com/en-us/data-center/l40s/ — FP32 91.6 TFLOPS (CUDA-core; TF32 is 183|366*)"
-      hbm_bw_bytes_per_s: "https://www.nvidia.com/en-us/data-center/l40s/ — GDDR6 864 GB/s"
-      hbm_capacity_bytes: "https://www.nvidia.com/en-us/data-center/l40s/ — 48 GB GDDR6 with ECC; nominal 48e9 bytes"
-      interconnect_bw_bytes_per_s: "https://www.nvidia.com/en-us/data-center/l40s/ — PCIe Gen4 x16 64 GB/s bidirectional; NVLink Support: No — not comparable to NVLink fabrics"
-      arch: "https://www.nvidia.com/en-us/data-center/l40s/ — Ada Lovelace AD102"
-      sm_count: "L40S — 142 SMs (18176 CUDA cores / 128)"
-      l2_bytes: "Ada AD102 — 96 MB L2 → 96 * 2^20 bytes"
+    peak_flops_fp32_per_s: null
+    hbm_bw_bytes_per_s: null
+    hbm_capacity_bytes: null
+    interconnect_bw_bytes_per_s: null
+    arch: null
+    sm_count: null
+    l2_bytes: null
+    source: ""

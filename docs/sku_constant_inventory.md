@@ -1,22 +1,17 @@
 # H200 constant inventory (ceiling / collector / levers)
 
 Snapshot of every H200-specific number in the ceiling model, the telemetry
-collector, and the lever ranges. Companion datasheet catalogue (populated, not
-yet loaded by code):
-[`gitm/planner/catalogue.yaml`](../gitm/planner/catalogue.yaml). Counter map
-(NVML/DCGM → `Sample` for Ampere/Hopper/Blackwell):
-[`docs/collector_counter_map.md`](collector_counter_map.md).
+collector, and the lever ranges. Companion empty schema:
+[`gitm/planner/catalogue.yaml`](../gitm/planner/catalogue.yaml).
 
 Field provenance for that schema: ticket Spec table (FP16/FP8/FP4, HBM, link,
-SM, L2, per-field `sources`) plus what [`HardwareSpec`](../gitm/planner/roofline.py) /
+SM, L2, `source`) plus what [`HardwareSpec`](../gitm/planner/roofline.py) /
 [`context.py`](../gitm/planner/context.py) actually consume today (adds fp32 and
-`arch`).
+`arch`; SM/L2 are stubs unused by roofline).
 
-`context.py` remains the runtime source of truth for peaks until a follow-up
-wires the catalogue. Catalogue header documents B200 HBM 7.7 vs “up to 8”,
-GB200 as per-GPU (not NVL72), interconnect as theoretical aggregate (PCIe ≠
-NVLink), and decimal capacity vs binary L2. Roadmap after wire-up: calibrate
-measured peaks, derive lever ranges from the table + GPU count.
+Roadmap after this file (not implemented here): fill the catalogue from
+datasheets, calibrate measured peaks, derive lever ranges from the table + GPU
+count, and add a DCGM/NVML counter map per generation.
 
 ---
 
